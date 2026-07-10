@@ -13,17 +13,14 @@ import {
 import * as ImagePicker from "expo-image-picker";
 
 import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-} from "firebase/storage";
-
-import {
   doc,
   updateDoc,
 } from "firebase/firestore";
 
-import { auth, db, storage } from "../../firebase/config";
+import {
+  auth,
+  db,
+} from "../../firebase/config";
 
 import ProgressHeader from "../../components/ProgressHeader";
 import { COLORS } from "../../theme/colors";
@@ -47,11 +44,10 @@ export default function ProfilePhotoScreen({
 
     const result =
       await ImagePicker.launchImageLibraryAsync({
-        mediaTypes:
-          ImagePicker.MediaTypeOptions.Images,
-        quality: 0.7,
+        mediaTypes: ["images"],
         allowsEditing: true,
         aspect: [1, 1],
+        quality: 0.8,
       });
 
     if (result.canceled) return;
@@ -60,48 +56,43 @@ export default function ProfilePhotoScreen({
   }
 
   async function handleContinue() {
-    if (!image) {
-      Alert.alert(
-        "Profile Photo",
-        "Please select a profile photo."
-      );
-      return;
-    }
-
     try {
       const uid = auth.currentUser?.uid;
 
-      if (!uid) return;
+      if (!uid) {
+        Alert.alert("Error", "User not found.");
+        return;
+      }
 
-      const response = await fetch(image);
+      await updateDoc(doc(db, "users", uid), {
+        profileCompleted: true,
 
-      const blob = await response.blob();
-
-      const storageRef = ref(
-        storage,
-        `profilePhotos/${uid}.jpg`
-      );
-
-      await uploadBytes(storageRef, blob);
-
-      const downloadURL =
-        await getDownloadURL(storageRef);
-
-      await updateDoc(
-        doc(db, "users", uid),
-        {
-          profilePhoto: downloadURL,
-          profileCompleted: true,
-        }
-      );
-
-      navigation.replace("Discover");
-    } catch (error) {
-      console.log(error);
+        photoURL:
+          image ||
+          "https://ui-avatars.com/api/?name=SecondChance&background=C8A96A&color=ffffff",
+      });
 
       Alert.alert(
-        "Upload Failed",
-        "Unable to upload profile photo."
+        "Profile Completed 🎉",
+        "Welcome to SecondChance AI!",
+        [
+          {
+            text: "Continue",
+            onPress: () => {
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Main" }],
+              });
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.log("PHOTO ERROR:", error);
+
+      Alert.alert(
+        "Error",
+        "Unable to save your profile."
       );
     }
   }
@@ -118,7 +109,7 @@ export default function ProfilePhotoScreen({
           step={7}
           totalSteps={7}
           title="Add Profile Photo"
-          subtitle="Profiles with photos receive significantly more matches."
+          subtitle="Profiles with photos receive more matches."
         />
 
         <TouchableOpacity
@@ -132,10 +123,7 @@ export default function ProfilePhotoScreen({
             />
           ) : (
             <Text style={styles.placeholder}>
-              📷
-
-              {"\n\n"}
-
+              📷{"\n\n"}
               Tap to select photo
             </Text>
           )}
@@ -169,11 +157,11 @@ const styles = StyleSheet.create({
     marginTop: 35,
     width: 250,
     height: 250,
-    alignSelf: "center",
     borderRadius: 125,
-    backgroundColor: COLORS.white,
+    alignSelf: "center",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: COLORS.white,
     borderWidth: 2,
     borderColor: "#DDD",
     overflow: "hidden",

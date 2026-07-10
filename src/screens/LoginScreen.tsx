@@ -9,14 +9,18 @@ import {
 } from "react-native";
 
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 import Logo from "../components/Logo";
 import ScreenHeader from "../components/ScreenHeader";
 import Input from "../components/Input";
-import { COLORS } from "../theme/colors";
-import { auth } from "../firebase/config";
 
-export default function LoginScreen({ navigation }: any) {
+import { COLORS } from "../theme/colors";
+import { auth, db } from "../firebase/config";
+
+export default function LoginScreen({
+  navigation,
+}: any) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -30,18 +34,46 @@ export default function LoginScreen({ navigation }: any) {
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email.trim(),
-        password
+      const credential =
+        await signInWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
+
+      console.log("==================================");
+      console.log("LOGIN SUCCESS");
+      console.log("UID:", credential.user.uid);
+      console.log("==================================");
+
+      const userRef = doc(
+        db,
+        "users",
+        credential.user.uid
       );
 
-      console.log("=================================");
-      console.log("LOGIN SUCCESS");
-      console.log(userCredential.user);
-      console.log("=================================");
+      const snapshot = await getDoc(userRef);
 
-      navigation.replace("Discover");
+      if (!snapshot.exists()) {
+        console.log("User document not found.");
+
+        navigation.replace("UserType");
+        return;
+      }
+
+      const data = snapshot.data();
+
+      console.log("Firestore User:", data);
+      console.log(
+        "profileCompleted:",
+        data.profileCompleted
+      );
+
+      if (data.profileCompleted === true) {
+        navigation.replace("Main");
+      } else {
+        navigation.replace("UserType");
+      }
     } catch (error: any) {
       console.log(error);
 
@@ -86,7 +118,9 @@ export default function LoginScreen({ navigation }: any) {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate("Signup")}
+        onPress={() =>
+          navigation.navigate("Signup")
+        }
       >
         <Text style={styles.signup}>
           Don't have an account? Sign Up

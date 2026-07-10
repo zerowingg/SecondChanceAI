@@ -5,7 +5,6 @@ import SplashScreen from "../screens/SplashScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import SignupScreen from "../screens/SignupScreen";
-import DiscoverScreen from "../screens/DiscoverScreen";
 
 import UserTypeScreen from "../screens/onboarding/UserTypeScreen";
 import ProfileBasicScreen from "../screens/onboarding/ProfileBasicScreen";
@@ -15,6 +14,10 @@ import ProfileLifestyleScreen from "../screens/onboarding/ProfileLifestyleScreen
 import ProfileValuesScreen from "../screens/onboarding/ProfileValuesScreen";
 import ProfileAIQuestionsScreen from "../screens/onboarding/ProfileAIQuestionsScreen";
 import ProfilePhotoScreen from "../screens/onboarding/ProfilePhotoScreen";
+
+import ChatScreen from "../screens/ChatScreen";
+
+import BottomNavigator from "./BottomNavigator";
 
 const Stack = createNativeStackNavigator();
 
@@ -28,11 +31,13 @@ export default function AppNavigator() {
           animation: "slide_from_right",
         }}
       >
+        {/* Splash */}
         <Stack.Screen
           name="Splash"
           component={SplashScreen}
         />
 
+        {/* Authentication */}
         <Stack.Screen
           name="Welcome"
           component={WelcomeScreen}
@@ -48,6 +53,7 @@ export default function AppNavigator() {
           component={SignupScreen}
         />
 
+        {/* Onboarding */}
         <Stack.Screen
           name="UserType"
           component={UserTypeScreen}
@@ -88,9 +94,16 @@ export default function AppNavigator() {
           component={ProfilePhotoScreen}
         />
 
+        {/* Main App */}
         <Stack.Screen
-          name="Discover"
-          component={DiscoverScreen}
+          name="Main"
+          component={BottomNavigator}
+        />
+
+        {/* Chat */}
+        <Stack.Screen
+          name="Chat"
+          component={ChatScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>

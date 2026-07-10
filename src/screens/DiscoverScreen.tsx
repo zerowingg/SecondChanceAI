@@ -1,5 +1,9 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
 import {
   Alert,
   SafeAreaView,
@@ -8,8 +12,13 @@ import {
   Text,
 } from "react-native";
 
+import { useNavigation } from "@react-navigation/native";
+
 import ProfileCard from "../components/discover/ProfileCard";
 import ActionButtons from "../components/discover/ActionButtons";
+import AIAnalyzeButton from "../components/discover/AIAnalyzeButton";
+import LoadingAnalysis from "../components/discover/LoadingAnalysis";
+import RelationshipDNACard from "../components/discover/RelationshipDNACard";
 
 import { COLORS } from "../theme/colors";
 
@@ -20,9 +29,17 @@ import {
 
 import { likeUser } from "../services/like.service";
 
+import { generateCompatibility } from "../ai/compatibility.service";
+import { generateBlueprint } from "../ai/blueprint.service";
+
 import { UserProfile } from "../types/user";
 
+import { CompatibilityResult } from "../ai/models/compatibility";
+import { RelationshipBlueprint } from "../ai/models/blueprint";
+
 export default function DiscoverScreen() {
+  const navigation = useNavigation<any>();
+
   const [currentUser, setCurrentUser] =
     useState<UserProfile | null>(null);
 
@@ -32,81 +49,163 @@ export default function DiscoverScreen() {
   const [currentIndex, setCurrentIndex] =
     useState(0);
 
+  const [loadingAI, setLoadingAI] =
+    useState(false);
+
+  const [compatibility, setCompatibility] =
+    useState<CompatibilityResult | null>(null);
+
+  const [blueprint, setBlueprint] =
+    useState<RelationshipBlueprint | null>(null);
+
   useEffect(() => {
     loadData();
   }, []);
 
-  const loadData = async () => {
+  async function loadData() {
     const me = await getCurrentUser();
-    const users = await getDiscoverProfiles();
+
+    const users =
+      await getDiscoverProfiles();
 
     setCurrentUser(me);
-    setProfiles(users);
-  };
 
-  const nextProfile = () => {
-    if (currentIndex < profiles.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
+    setProfiles(users);
+  }
+
+  const profile = profiles[currentIndex];
+
+  async function runAIScan() {
+    if (!currentUser || !profile)
+      return;
+
+    try {
+      setLoadingAI(true);
+
+      setCompatibility(null);
+
+      setBlueprint(null);
+
+      const compatibilityResult =
+        await generateCompatibility(
+          currentUser,
+          profile
+        );
+
+      const blueprintResult =
+        await generateBlueprint(
+          currentUser,
+          profile
+        );
+
+      setCompatibility(
+        compatibilityResult
+      );
+
+      setBlueprint(
+        blueprintResult
+      );
+    } catch (error) {
+      console.log(error);
+
+      Alert.alert(
+        "AI Error",
+        "Unable to analyze this profile."
+      );
+    } finally {
+      setLoadingAI(false);
+    }
+  }
+
+  function nextProfile() {
+    setCompatibility(null);
+
+    setBlueprint(null);
+
+    if (
+      currentIndex <
+      profiles.length - 1
+    ) {
+      setCurrentIndex(
+        (prev) => prev + 1
+      );
     } else {
       Alert.alert(
         "Finished",
         "No more profiles available."
       );
     }
-  };
+  }
 
-  const currentProfile = profiles[currentIndex];
+  async function handleLike() {
+    if (!profile) return;
 
-  const handleLike = async () => {
-    if (!currentProfile) return;
+    const matched =
+      await likeUser(profile.id);
 
-    try {
-      const matched = await likeUser(
-        currentProfile.id
+    if (matched) {
+      Alert.alert(
+        "🎉 It's a Match!",
+        `You and ${profile.fullName} liked each other.`,
+        [
+          {
+            text: "View Matches",
+
+            onPress: () =>
+              navigation.navigate(
+                "Main",
+                {
+                  screen: "Matches",
+                }
+              ),
+          },
+
+          {
+            text: "Keep Swiping",
+
+            onPress: nextProfile,
+          },
+        ]
       );
 
-      if (matched) {
-        Alert.alert(
-          "🎉 It's a Match!",
-          `You and ${currentProfile.fullName} liked each other.`
-        );
-      }
-
-      nextProfile();
-    } catch (error) {
-      console.log(error);
+      return;
     }
-  };
 
-  const handlePass = () => {
     nextProfile();
-  };
+  }
+
+  function handlePass() {
+    nextProfile();
+  }
 
   if (!currentUser) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={styles.container}
+      >
         <StatusBar style="dark" />
 
-        <Text style={styles.emptyText}>
-          Loading your profile...
+        <Text style={styles.empty}>
+          Loading profile...
         </Text>
       </SafeAreaView>
     );
   }
 
-  if (!currentProfile) {
+  if (!profile) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={styles.container}
+      >
         <StatusBar style="dark" />
 
-        <Text style={styles.emptyText}>
-          No profiles available.
+        <Text style={styles.empty}>
+          No profiles found.
         </Text>
       </SafeAreaView>
     );
   }
-
-  return (
+    return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
@@ -116,8 +215,28 @@ export default function DiscoverScreen() {
       >
         <ProfileCard
           currentUser={currentUser}
-          profile={currentProfile}
+          profile={profile}
         />
+
+        <AIAnalyzeButton
+          loading={loadingAI}
+          onPress={runAIScan}
+        />
+
+        {loadingAI && (
+          <LoadingAnalysis />
+        )}
+
+        {!loadingAI &&
+          compatibility &&
+          blueprint && (
+            <RelationshipDNACard
+              compatibility={
+                compatibility
+              }
+              blueprint={blueprint}
+            />
+          )}
 
         <ActionButtons
           onLike={handleLike}
@@ -128,23 +247,31 @@ export default function DiscoverScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
+const styles =
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor:
+        COLORS.background,
+    },
 
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-  },
+    content: {
+      padding: 20,
+      paddingBottom: 40,
+    },
 
-  emptyText: {
-    flex: 1,
-    textAlign: "center",
-    textAlignVertical: "center",
-    fontSize: 18,
-    color: COLORS.subtitle,
-    marginTop: 100,
-  },
-});
+    empty: {
+      flex: 1,
+
+      textAlign: "center",
+
+      textAlignVertical:
+        "center",
+
+      fontSize: 18,
+
+      color: COLORS.subtitle,
+
+      marginTop: 120,
+    },
+  });

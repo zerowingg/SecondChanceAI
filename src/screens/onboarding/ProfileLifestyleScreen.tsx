@@ -79,7 +79,6 @@ export default function ProfileLifestyleScreen({
         smoking,
         drinking,
         children,
-        languages,
       });
 
       navigation.replace("ProfileValues");
