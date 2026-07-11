@@ -1,25 +1,34 @@
+import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
+
 import {
-  ActivityIndicator,
-  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  Image,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
+
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { signOut } from "firebase/auth";
 
 import { auth } from "../firebase/config";
-import { getCurrentUser } from "../services/user.service";
-import { UserProfile } from "../types/user";
+
 import { COLORS } from "../theme/colors";
 
-export default function ProfileScreen({
-  navigation,
-}: any) {
+import { UserProfile } from "../types/user";
+
+import {
+  getCurrentUser,
+} from "../services/user.service";
+
+import { getProfileImage } from "../utils/avatar";
+
+export default function ProfileScreen() {
   const [user, setUser] =
     useState<UserProfile | null>(null);
 
@@ -31,43 +40,101 @@ export default function ProfileScreen({
   }, []);
 
   async function loadProfile() {
-    const profile =
-      await getCurrentUser();
+    try {
+      const profile =
+        await getCurrentUser();
 
-    setUser(profile);
-    setLoading(false);
+      setUser(profile);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function handleLogout() {
-    await signOut(auth);
-
-    navigation.reset({
-      index: 0,
-      routes: [
+  async function logout() {
+    Alert.alert(
+      "Logout",
+      "Are you sure you want to logout?",
+      [
         {
-          name: "Welcome",
+          text: "Cancel",
+          style: "cancel",
         },
-      ],
-    });
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            await signOut(auth);
+          },
+        },
+      ]
+    );
+  }
+
+  function deleteAccount() {
+    Alert.alert(
+      "Delete Account",
+      "This feature will be available soon."
+    );
+  }
+
+  function editProfile() {
+    Alert.alert(
+      "Coming Soon",
+      "Profile editing will be added soon."
+    );
+  }
+
+  function openSafety() {
+    Alert.alert(
+      "Safety Center",
+      "Always meet in public places and never share OTPs or financial information."
+    );
+  }
+
+  function openPrivacy() {
+    Alert.alert(
+      "Privacy Policy",
+      "Privacy Policy screen will be added before final release."
+    );
+  }
+
+  function openTerms() {
+    Alert.alert(
+      "Terms & Conditions",
+      "Terms & Conditions screen will be added before final release."
+    );
   }
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.center}>
-        <ActivityIndicator
-          size="large"
-          color={COLORS.primary}
-        />
+      <SafeAreaView
+        style={styles.container}
+      >
+        <StatusBar style="dark" />
+
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>
+            Loading Profile...
+          </Text>
+        </View>
       </SafeAreaView>
     );
   }
 
   if (!user) {
     return (
-      <SafeAreaView style={styles.center}>
-        <Text>
-          Unable to load profile.
-        </Text>
+      <SafeAreaView
+        style={styles.container}
+      >
+        <StatusBar style="dark" />
+
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>
+            Unable to load profile.
+          </Text>
+        </View>
       </SafeAreaView>
     );
   }
@@ -76,234 +143,540 @@ export default function ProfileScreen({
     <SafeAreaView
       style={styles.container}
     >
+      <StatusBar style="dark" />
+
       <ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={
           styles.content
         }
-        showsVerticalScrollIndicator={
-          false
-        }
       >
-        <Image
-          source={{
-            uri:
-              user.photoURL ||
-              "https://i.pravatar.cc/300",
-          }}
-          style={styles.avatar}
-        />
+        <View style={styles.header}>
 
-        <Text style={styles.name}>
-          {user.fullName}
-        </Text>
+          <Image
+            source={getProfileImage(user)}
+            style={styles.avatar}
+          />
 
-        <Text style={styles.subtitle}>
-          {user.occupation}
-          {" • "}
-          {user.city}
-        </Text>
-
-        <View style={styles.card}>
-          <Text style={styles.heading}>
-            About
+          <Text style={styles.name}>
+            {user.fullName}
           </Text>
 
-          <Text style={styles.value}>
-            {user.bio || "-"}
+          <Text style={styles.subtitle}>
+            {user.age} • {user.city}
+          </Text>
+
+          <Text style={styles.job}>
+            {user.occupation}
+          </Text>
+
+          <TouchableOpacity
+            style={styles.editButton}
+            onPress={editProfile}
+          >
+            <Ionicons
+              name="create-outline"
+              size={18}
+              color="#FFF"
+            />
+
+            <Text
+              style={
+                styles.editButtonText
+              }
+            >
+              Edit Profile
+            </Text>
+          </TouchableOpacity>
+
+        </View>
+
+        {/* ===========================
+            SECTION CARDS START HERE
+        ============================ */}
+                {/* ABOUT */}
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>
+            About Me
+          </Text>
+
+          <Text style={styles.body}>
+            {user.bio?.trim() ||
+              "No bio added yet."}
           </Text>
         </View>
 
+        {/* RELATIONSHIP */}
+
         <View style={styles.card}>
-          <Text style={styles.heading}>
-            Basic Information
+          <Text style={styles.cardTitle}>
+            Relationship
           </Text>
 
-          <Text style={styles.value}>
-            Age : {user.age}
-          </Text>
+          <InfoRow
+            icon="person-outline"
+            title="Gender"
+            value={user.gender}
+          />
 
-          <Text style={styles.value}>
-            Gender : {user.gender}
-          </Text>
+          <InfoRow
+            icon="heart-outline"
+            title="Interested In"
+            value={
+              user.interestedIn ||
+              "Not specified"
+            }
+          />
 
-          <Text style={styles.value}>
-            User Type :{" "}
-            {user.userType}
-          </Text>
+          <InfoRow
+            icon="flag-outline"
+            title="Relationship Goal"
+            value={
+              user.goals?.length
+                ? user.goals.join(", ")
+                : "Not specified"
+            }
+          />
+
+          <InfoRow
+            icon="language-outline"
+            title="Languages"
+            value={
+              user.languages?.length
+                ? user.languages.join(", ")
+                : "Not specified"
+            }
+          />
         </View>
 
+        {/* INTERESTS */}
+
         <View style={styles.card}>
-          <Text style={styles.heading}>
+          <Text style={styles.cardTitle}>
             Interests
           </Text>
 
-          <Text style={styles.value}>
-            {user.interests?.length
-              ? user.interests.join(", ")
-              : "-"}
-          </Text>
+          <View style={styles.chipContainer}>
+            {user.interests?.length ? (
+              user.interests.map(
+                (item, index) => (
+                  <View
+                    key={index}
+                    style={styles.chip}
+                  >
+                    <Text
+                      style={
+                        styles.chipText
+                      }
+                    >
+                      {item}
+                    </Text>
+                  </View>
+                )
+              )
+            ) : (
+              <Text style={styles.body}>
+                No interests added.
+              </Text>
+            )}
+          </View>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.heading}>
-            Relationship Goals
-          </Text>
-
-          <Text style={styles.value}>
-            {user.goals?.length
-              ? user.goals.join(", ")
-              : "-"}
-          </Text>
-        </View>
+        {/* VALUES */}
 
         <View style={styles.card}>
-          <Text style={styles.heading}>
-            Lifestyle
-          </Text>
-
-          <Text style={styles.value}>
-            Personality :{" "}
-            {user.lifestyle?.personality ||
-              "-"}
-          </Text>
-
-          <Text style={styles.value}>
-            Smoking :{" "}
-            {user.lifestyle?.smoking ||
-              "-"}
-          </Text>
-
-          <Text style={styles.value}>
-            Drinking :{" "}
-            {user.lifestyle?.drinking ||
-              "-"}
-          </Text>
-
-          <Text style={styles.value}>
-            Children :{" "}
-            {user.lifestyle?.children ||
-              "-"}
-          </Text>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.heading}>
+          <Text style={styles.cardTitle}>
             Values
           </Text>
 
-          <Text style={styles.value}>
-            {user.values?.length
-              ? user.values.join(", ")
-              : "-"}
-          </Text>
+          <View style={styles.chipContainer}>
+            {user.values?.length ? (
+              user.values.map(
+                (item, index) => (
+                  <View
+                    key={index}
+                    style={styles.chip}
+                  >
+                    <Text
+                      style={
+                        styles.chipText
+                      }
+                    >
+                      {item}
+                    </Text>
+                  </View>
+                )
+              )
+            ) : (
+              <Text style={styles.body}>
+                No values added.
+              </Text>
+            )}
+          </View>
         </View>
+
+        {/* AI PROFILE */}
 
         <View style={styles.card}>
-          <Text style={styles.heading}>
-            Languages
+          <Text style={styles.cardTitle}>
+            AI Profile Summary
           </Text>
 
-          <Text style={styles.value}>
-            {user.languages?.length
-              ? user.languages.join(", ")
-              : "-"}
+          <InfoBlock
+            title="Previous Relationship"
+            value={
+              user.aiAnswers
+                ?.previousRelationship
+            }
+          />
+
+          <InfoBlock
+            title="Partner Expectations"
+            value={
+              user.aiAnswers
+                ?.partnerExpectations
+            }
+          />
+
+          <InfoBlock
+            title="Future Goals"
+            value={
+              user.aiAnswers
+                ?.futureGoals
+            }
+          />
+        </View>
+                {/* ACCOUNT */}
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>
+            Account
           </Text>
+
+          <MenuItem
+            icon="create-outline"
+            title="Edit Profile"
+            color={COLORS.text}
+            onPress={editProfile}
+          />
+
+          <MenuItem
+            icon="shield-checkmark-outline"
+            title="Safety Center"
+            color={COLORS.text}
+            onPress={openSafety}
+          />
+
+          <MenuItem
+            icon="document-text-outline"
+            title="Terms & Conditions"
+            color={COLORS.text}
+            onPress={openTerms}
+          />
+
+          <MenuItem
+            icon="lock-closed-outline"
+            title="Privacy Policy"
+            color={COLORS.text}
+            onPress={openPrivacy}
+          />
+
+          <MenuItem
+            icon="log-out-outline"
+            title="Logout"
+            color="#E67E22"
+            onPress={logout}
+          />
+
+          <MenuItem
+            icon="trash-outline"
+            title="Delete Account"
+            color="#E53935"
+            onPress={deleteAccount}
+          />
         </View>
 
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={handleLogout}
-        >
-          <Text
-            style={
-              styles.logoutText
-            }
-          >
-            Logout
-          </Text>
-        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles =
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor:
-        COLORS.background,
-    },
+/* -----------------------------
+   COMPONENTS
+--------------------------------*/
 
-    center: {
-      flex: 1,
-      justifyContent:
-        "center",
-      alignItems: "center",
-      backgroundColor:
-        COLORS.background,
-    },
+function InfoRow({
+  icon,
+  title,
+  value,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  value?: string;
+}) {
+  return (
+    <View style={styles.infoRow}>
+      <View style={styles.infoLeft}>
+        <Ionicons
+          name={icon}
+          size={20}
+          color={COLORS.primary}
+        />
 
-    content: {
-      padding: 20,
-      paddingBottom: 40,
-    },
+        <Text style={styles.infoTitle}>
+          {title}
+        </Text>
+      </View>
 
-    avatar: {
-      width: 120,
-      height: 120,
-      borderRadius: 60,
-      alignSelf: "center",
-      marginTop: 10,
-    },
+      <Text style={styles.infoValue}>
+        {value || "Not specified"}
+      </Text>
+    </View>
+  );
+}
 
-    name: {
-      marginTop: 15,
-      textAlign: "center",
-      fontSize: 28,
-      fontWeight: "700",
-      color: COLORS.text,
-    },
+function InfoBlock({
+  title,
+  value,
+}: {
+  title: string;
+  value?: string;
+}) {
+  return (
+    <View style={styles.infoBlock}>
+      <Text style={styles.infoBlockTitle}>
+        {title}
+      </Text>
 
-    subtitle: {
-      textAlign: "center",
-      color: COLORS.subtitle,
-      marginTop: 5,
-      marginBottom: 20,
-    },
+      <Text style={styles.infoBlockValue}>
+        {value || "Not provided"}
+      </Text>
+    </View>
+  );
+}
 
-    card: {
-      backgroundColor:
-        COLORS.white,
-      borderRadius: 18,
-      padding: 18,
-      marginBottom: 15,
-    },
+function MenuItem({
+  icon,
+  title,
+  color,
+  onPress,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  color: string;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      style={styles.menuItem}
+      activeOpacity={0.8}
+      onPress={onPress}
+    >
+      <View style={styles.menuLeft}>
+        <Ionicons
+          name={icon}
+          size={22}
+          color={color}
+        />
 
-    heading: {
-      fontSize: 18,
-      fontWeight: "700",
-      marginBottom: 10,
-      color: COLORS.text,
-    },
+        <Text
+          style={[
+            styles.menuTitle,
+            { color },
+          ]}
+        >
+          {title}
+        </Text>
+      </View>
 
-    value: {
-      color: COLORS.subtitle,
-      lineHeight: 24,
-    },
+      <Ionicons
+        name="chevron-forward"
+        size={18}
+        color="#BDBDBD"
+      />
+    </TouchableOpacity>
+  );
+}
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
 
-    logoutButton: {
-      marginTop: 15,
-      backgroundColor:
-        "#E53935",
-      paddingVertical: 16,
-      borderRadius: 30,
-      alignItems: "center",
-    },
+  content: {
+    paddingBottom: 40,
+  },
 
-    logoutText: {
-      color: "#fff",
-      fontWeight: "700",
-      fontSize: 17,
-    },
-  });
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  loadingText: {
+    fontSize: 18,
+    color: COLORS.subtitle,
+    fontWeight: "600",
+  },
+
+  header: {
+    alignItems: "center",
+    paddingVertical: 35,
+    backgroundColor: COLORS.white,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    elevation: 5,
+    marginBottom: 20,
+  },
+
+  avatar: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    borderWidth: 4,
+    borderColor: COLORS.primary,
+  },
+
+  name: {
+    marginTop: 18,
+    fontSize: 30,
+    fontWeight: "700",
+    color: COLORS.text,
+  },
+
+  subtitle: {
+    marginTop: 6,
+    fontSize: 16,
+    color: COLORS.subtitle,
+  },
+
+  job: {
+    marginTop: 6,
+    fontSize: 16,
+    color: COLORS.subtitle,
+  },
+
+  editButton: {
+    marginTop: 22,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 13,
+    borderRadius: 30,
+  },
+
+  editButtonText: {
+    color: "#FFF",
+    fontWeight: "700",
+    marginLeft: 8,
+    fontSize: 16,
+  },
+
+  card: {
+    marginHorizontal: 18,
+    marginBottom: 18,
+    backgroundColor: COLORS.white,
+    borderRadius: 22,
+    padding: 20,
+    elevation: 3,
+  },
+
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: COLORS.text,
+    marginBottom: 16,
+  },
+
+  body: {
+    fontSize: 15,
+    lineHeight: 24,
+    color: COLORS.subtitle,
+  },
+
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+
+  infoLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+
+  infoTitle: {
+    marginLeft: 10,
+    fontSize: 15,
+    color: COLORS.text,
+    fontWeight: "600",
+  },
+
+  infoValue: {
+    flex: 1,
+    textAlign: "right",
+    color: COLORS.subtitle,
+    fontSize: 14,
+  },
+
+  chipContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+
+  chip: {
+    backgroundColor: "#FFF7EA",
+    borderRadius: 25,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+
+  chipText: {
+    color: COLORS.primary,
+    fontWeight: "600",
+    fontSize: 14,
+  },
+
+  infoBlock: {
+    marginBottom: 18,
+  },
+
+  infoBlockTitle: {
+    fontWeight: "700",
+    color: COLORS.text,
+    marginBottom: 6,
+    fontSize: 15,
+  },
+
+  infoBlockValue: {
+    color: COLORS.subtitle,
+    lineHeight: 22,
+    fontSize: 14,
+  },
+
+  menuItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F1F1F1",
+  },
+
+  menuLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  menuTitle: {
+    marginLeft: 14,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+});

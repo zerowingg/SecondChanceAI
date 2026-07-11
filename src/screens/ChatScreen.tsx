@@ -1,3 +1,4 @@
+import { getProfileImage } from "../utils/avatar";
 import { StatusBar } from "expo-status-bar";
 import React, {
   useEffect,
@@ -108,13 +109,9 @@ export default function ChatScreen({
         </TouchableOpacity>
 
         <Image
-          source={{
-            uri:
-              user.photoURL ||
-              "https://i.pravatar.cc/300",
-          }}
-          style={styles.avatar}
-        />
+  source={getProfileImage(user)}
+  style={styles.avatar}
+/>
 
         <View style={{ flex: 1 }}>
           <Text style={styles.name}>

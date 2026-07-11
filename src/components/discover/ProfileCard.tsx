@@ -6,6 +6,8 @@ import {
   View,
 } from "react-native";
 
+import { getProfileImage } from "../../utils/avatar";
+
 import { COLORS } from "../../theme/colors";
 
 import { UserProfile } from "../../types/user";
@@ -33,13 +35,9 @@ export default function ProfileCard({
   return (
     <View style={styles.card}>
       <Image
-        source={{
-          uri:
-            profile.photoURL ||
-            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800",
-        }}
-        style={styles.image}
-      />
+  source={getProfileImage(profile)}
+  style={styles.image}
+/>
 
       <View style={styles.content}>
         <Text style={styles.name}>

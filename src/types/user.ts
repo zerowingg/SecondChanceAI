@@ -16,7 +16,12 @@ export interface UserProfile {
 
   fullName: string;
   age: string;
+
   gender: string;
+
+  // NEW
+  interestedIn: string;
+
   city: string;
   occupation: string;
   bio: string;
