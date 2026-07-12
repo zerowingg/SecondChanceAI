@@ -36,6 +36,7 @@ import { UserProfile } from "../types/user";
 
 import { CompatibilityResult } from "../ai/models/compatibility";
 import { RelationshipBlueprint } from "../ai/models/blueprint";
+import { saveCoachResult } from "../services/coachStore";
 
 export default function DiscoverScreen() {
   const navigation = useNavigation<any>();
@@ -97,6 +98,10 @@ export default function DiscoverScreen() {
           currentUser,
           profile
         );
+        saveCoachResult(
+  compatibilityResult,
+  blueprintResult
+);
 
       setCompatibility(
         compatibilityResult

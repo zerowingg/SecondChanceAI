@@ -59,6 +59,7 @@ export default function ProfileGoalsScreen({
         contentContainerStyle={styles.content}
       >
         <ProgressHeader
+          backScreen="ProfileInterests"
           step={3}
           totalSteps={7}
           title="Relationship Goals"

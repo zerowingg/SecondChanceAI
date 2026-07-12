@@ -1,5 +1,13 @@
+import { GLOBAL } from "../theme/styles";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import {
+  useState,
+  useCallback,
+} from "react";
+import {
+  useNavigation,
+  useFocusEffect,
+} from "@react-navigation/native";
 
 import {
   SafeAreaView,
@@ -29,15 +37,19 @@ import {
 import { getProfileImage } from "../utils/avatar";
 
 export default function ProfileScreen() {
+  const navigation = useNavigation<any>();
+
   const [user, setUser] =
     useState<UserProfile | null>(null);
 
   const [loading, setLoading] =
     useState(true);
 
-  useEffect(() => {
+  useFocusEffect(
+  useCallback(() => {
     loadProfile();
-  }, []);
+  }, [])
+);
 
   async function loadProfile() {
     try {
@@ -53,24 +65,36 @@ export default function ProfileScreen() {
   }
 
   async function logout() {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: async () => {
+  Alert.alert(
+    "Logout",
+    "Are you sure you want to logout?",
+    [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Logout",
+        style: "destructive",
+        onPress: async () => {
+          try {
             await signOut(auth);
-          },
+
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "Welcome" }],
+            });
+          } catch (error) {
+            Alert.alert(
+              "Logout Failed",
+              "Please try again."
+            );
+          }
         },
-      ]
-    );
-  }
+      },
+    ]
+  );
+}
 
   function deleteAccount() {
     Alert.alert(
@@ -80,11 +104,8 @@ export default function ProfileScreen() {
   }
 
   function editProfile() {
-    Alert.alert(
-      "Coming Soon",
-      "Profile editing will be added soon."
-    );
-  }
+  navigation.navigate("EditProfile");
+}
 
   function openSafety() {
     Alert.alert(
@@ -94,18 +115,19 @@ export default function ProfileScreen() {
   }
 
   function openPrivacy() {
-    Alert.alert(
-      "Privacy Policy",
-      "Privacy Policy screen will be added before final release."
-    );
-  }
+  navigation.navigate("Privacy");
+}
 
   function openTerms() {
-    Alert.alert(
-      "Terms & Conditions",
-      "Terms & Conditions screen will be added before final release."
-    );
-  }
+  navigation.navigate("Terms");
+}
+
+  function openAbout() {
+  navigation.navigate("About");
+}
+function openContactSupport() {
+  navigation.navigate("ContactSupport");
+}
 
   if (loading) {
     return (
@@ -360,6 +382,19 @@ export default function ProfileScreen() {
             color={COLORS.text}
             onPress={editProfile}
           />
+
+          <MenuItem
+            icon="information-circle-outline"
+            title="About SecondChance AI"
+            color={COLORS.text}
+            onPress={openAbout}
+          />
+          <MenuItem
+            icon="headset-outline"
+            title="Contact & Support"
+            color={COLORS.text}
+            onPress={openContactSupport}
+/>
 
           <MenuItem
             icon="shield-checkmark-outline"

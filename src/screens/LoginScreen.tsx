@@ -1,37 +1,62 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import {
-  Alert,
   SafeAreaView,
-  StyleSheet,
   Text,
   TouchableOpacity,
+  Alert,
+  StyleSheet,
 } from "react-native";
 
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import {
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+
+import {
+  doc,
+  getDoc,
+} from "firebase/firestore";
 
 import Logo from "../components/Logo";
 import ScreenHeader from "../components/ScreenHeader";
 import Input from "../components/Input";
+import LoadingOverlay from "../components/LoadingOverlay";
+
+import {
+  auth,
+  db,
+} from "../firebase/config";
 
 import { COLORS } from "../theme/colors";
-import { auth, db } from "../firebase/config";
 
 export default function LoginScreen({
   navigation,
 }: any) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+    const [welcomeMode, setWelcomeMode] =
+  useState(false);
 
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
+    if (
+      !email.trim() ||
+      !password.trim()
+    ) {
       Alert.alert(
         "Missing Information",
         "Please enter your email and password."
       );
       return;
     }
+
+    setLoading(true);
 
     try {
       const credential =
@@ -41,40 +66,44 @@ export default function LoginScreen({
           password
         );
 
-      console.log("==================================");
-      console.log("LOGIN SUCCESS");
-      console.log("UID:", credential.user.uid);
-      console.log("==================================");
-
-      const userRef = doc(
-        db,
-        "users",
-        credential.user.uid
-      );
-
-      const snapshot = await getDoc(userRef);
+      const snapshot =
+        await getDoc(
+          doc(
+            db,
+            "users",
+            credential.user.uid
+          )
+        );
 
       if (!snapshot.exists()) {
-        console.log("User document not found.");
+        setLoading(false);
 
-        navigation.replace("UserType");
+        navigation.replace(
+          "UserType"
+        );
+
         return;
       }
 
-      const data = snapshot.data();
+      const data =
+        snapshot.data();
 
-      console.log("Firestore User:", data);
-      console.log(
-        "profileCompleted:",
-        data.profileCompleted
-      );
+      setLoading(false);
 
-      if (data.profileCompleted === true) {
-        navigation.replace("Main");
+      if (
+        data.profileCompleted === true
+      ) {
+        navigation.replace(
+          "Main"
+        );
       } else {
-        navigation.replace("UserType");
+        navigation.replace(
+          "UserType"
+        );
       }
     } catch (error: any) {
+      setLoading(false);
+
       console.log(error);
 
       Alert.alert(
@@ -83,8 +112,7 @@ export default function LoginScreen({
       );
     }
   };
-
-  return (
+    return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
@@ -109,8 +137,12 @@ export default function LoginScreen({
       />
 
       <TouchableOpacity
-        style={styles.button}
+        style={[
+          styles.button,
+          loading && styles.buttonDisabled,
+        ]}
         onPress={handleLogin}
+        disabled={loading}
       >
         <Text style={styles.buttonText}>
           Login
@@ -118,14 +150,46 @@ export default function LoginScreen({
       </TouchableOpacity>
 
       <TouchableOpacity
+        disabled={loading}
         onPress={() =>
           navigation.navigate("Signup")
         }
       >
         <Text style={styles.signup}>
-          Don't have an account? Sign Up
+          Don't have an account?{" "}
+          <Text style={styles.signupBold}>
+            Sign Up
+          </Text>
         </Text>
       </TouchableOpacity>
+
+      <LoadingOverlay
+  visible={loading}
+  icon={
+    welcomeMode
+      ? "heart"
+      : "shield-checkmark"
+  }
+  title={
+    welcomeMode
+      ? "Welcome to SecondChance AI"
+      : "Creating your account..."
+  }
+  messages={
+    welcomeMode
+      ? [
+          "Building your personalized AI experience...",
+          "Preparing your onboarding...",
+          "Because Everyone Deserves A Second Chance.",
+        ]
+      : [
+          "Encrypting your information...",
+          "Saving your profile...",
+          "Preparing your AI experience...",
+          "Almost there...",
+        ]
+  }
+/>
     </SafeAreaView>
   );
 }
@@ -144,6 +208,20 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: "center",
+
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+
+    elevation: 6,
+  },
+
+  buttonDisabled: {
+    opacity: 0.7,
   },
 
   buttonText: {
@@ -157,5 +235,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: COLORS.subtitle,
     fontSize: 16,
+  },
+
+  signupBold: {
+    color: COLORS.primary,
+    fontWeight: "700",
   },
 });

@@ -74,6 +74,7 @@ export default function ProfileAIQuestionsScreen({
         contentContainerStyle={styles.content}
       >
         <ProgressHeader
+          backScreen="ProfileValues"
           step={6}
           totalSteps={7}
           title="Help AI Know You"

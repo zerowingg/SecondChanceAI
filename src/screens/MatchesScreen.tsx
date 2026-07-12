@@ -1,9 +1,7 @@
+import { GLOBAL } from "../theme/styles";
 import { getProfileImage } from "../utils/avatar";
 import { StatusBar } from "expo-status-bar";
-import React, {
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   SafeAreaView,
@@ -36,9 +34,7 @@ export default function MatchesScreen({
 
   async function loadMatches() {
     try {
-      const data =
-        await getMatches();
-
+      const data = await getMatches();
       setMatches(data);
     } catch (error) {
       console.log(error);
@@ -46,32 +42,21 @@ export default function MatchesScreen({
   }
 
   function formatTime(time: any) {
-    if (!time?.toDate)
-      return "";
+    if (!time?.toDate) return "";
 
-    const date =
-      time.toDate();
-
-    return date.toLocaleTimeString(
-      [],
-      {
+    return time
+      .toDate()
+      .toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
-      }
-    );
+      });
   }
 
-  function openChat(
-    item: Match
-  ) {
-    navigation.navigate(
-      "Chat",
-      {
-        user: item,
-        matchId:
-          item.matchId,
-      }
-    );
+  function openChat(item: Match) {
+    navigation.navigate("Chat", {
+      user: item,
+      matchId: item.matchId,
+    });
   }
 
   function renderItem({
@@ -82,70 +67,40 @@ export default function MatchesScreen({
     return (
       <TouchableOpacity
         style={styles.card}
-        activeOpacity={0.8}
-        onPress={() =>
-          openChat(item)
-        }
+        activeOpacity={0.85}
+        onPress={() => openChat(item)}
       >
         <View>
           <Image
-  source={getProfileImage(item)}
-  style={styles.avatar}
-/>
-
-          {/* Online indicator (UI Ready) */}
-
-          <View
-            style={
-              styles.onlineDot
-            }
+            source={getProfileImage(item)}
+            style={styles.avatar}
           />
+
+          <View style={styles.onlineDot} />
         </View>
 
-        <View
-          style={
-            styles.middle
-          }
-        >
-          <Text
-            style={
-              styles.name
-            }
-          >
+        <View style={styles.middle}>
+          <Text style={styles.name}>
             {item.fullName}
           </Text>
 
           <Text
-            style={
-              styles.lastMessage
-            }
-            numberOfLines={
-              1
-            }
+            style={styles.lastMessage}
+            numberOfLines={1}
           >
             {item.lastMessage ||
               "Start your conversation ❤️"}
           </Text>
         </View>
 
-        <View
-          style={
-            styles.right
-          }
-        >
-          <Text
-            style={
-              styles.time
-            }
-          >
-            {formatTime(
-              item.lastMessageAt
-            )}
+        <View style={styles.right}>
+          <Text style={styles.time}>
+            {formatTime(item.lastMessageAt)}
           </Text>
 
           <Ionicons
             name="chevron-forward"
-            size={18}
+            size={20}
             color="#BDBDBD"
           />
         </View>
@@ -155,63 +110,43 @@ export default function MatchesScreen({
 
   return (
     <SafeAreaView
-      style={
-        styles.container
-      }
+      style={styles.container}
     >
-      <StatusBar
-        style="dark"
-      />
+      <StatusBar style="dark" />
 
-      <Text
-        style={
-          styles.title
-        }
-      >
-        ❤️ Matches
-      </Text>
+      {/* Premium Header */}
 
-      {matches.length ===
-      0 ? (
-        <View
-          style={
-            styles.empty
-          }
-        >
+      <View style={styles.headerCard}>
+        <Text style={styles.title}>
+          ❤️ Matches
+        </Text>
+      </View>
+
+      {matches.length === 0 ? (
+        <View style={styles.empty}>
           <Ionicons
             name="heart-outline"
-            size={80}
-            color="#D0D0D0"
+            size={85}
+            color={COLORS.primary}
           />
 
-          <Text
-            style={
-              styles.emptyTitle
-            }
-          >
+          <Text style={styles.emptyTitle}>
             No Matches Yet
           </Text>
 
-          <Text
-            style={
-              styles.emptySubtitle
-            }
-          >
-            Keep discovering
-            amazing people.
+          <Text style={styles.emptySubtitle}>
+            Keep discovering amazing
+            people and start meaningful
+            conversations.
           </Text>
         </View>
       ) : (
         <FlatList
           data={matches}
-          keyExtractor={(
-            item
-          ) =>
+          keyExtractor={(item) =>
             item.matchId
           }
-          renderItem={
-            renderItem
-          }
+          renderItem={renderItem}
           showsVerticalScrollIndicator={
             false
           }
@@ -233,74 +168,135 @@ const styles =
       padding: 20,
     },
 
+    headerCard: {
+      backgroundColor:
+        COLORS.white,
+
+      borderRadius: 24,
+
+      borderWidth: 2,
+
+      borderColor:
+        COLORS.goldBorder,
+
+      alignItems: "center",
+
+      paddingVertical: 18,
+
+      marginBottom: 22,
+
+      shadowColor: "#000",
+
+      shadowOpacity: 0.08,
+
+      shadowRadius: 10,
+
+      shadowOffset: {
+        width: 0,
+        height: 4,
+      },
+
+      elevation: 5,
+    },
+
     title: {
       fontSize: 30,
-      fontWeight:
-        "700",
-      color:
-        COLORS.text,
-      marginBottom: 20,
+      fontWeight: "800",
+      color: COLORS.text,
     },
 
     empty: {
       flex: 1,
-      justifyContent:
-        "center",
-      alignItems:
-        "center",
+      justifyContent: "center",
+      alignItems: "center",
+
+      backgroundColor:
+        COLORS.white,
+
+      borderRadius: 26,
+
+      borderWidth: 2,
+
+      borderColor:
+        COLORS.goldBorder,
+
+      padding: 30,
+
+      shadowColor: "#000",
+
+      shadowOpacity: 0.08,
+
+      shadowRadius: 10,
+
+      shadowOffset: {
+        width: 0,
+        height: 5,
+      },
+
+      elevation: 5,
     },
 
     emptyTitle: {
       marginTop: 20,
       fontSize: 24,
-      fontWeight:
-        "700",
-      color:
-        COLORS.text,
+      fontWeight: "700",
+      color: COLORS.text,
     },
 
     emptySubtitle: {
-      marginTop: 8,
-      color:
-        COLORS.subtitle,
+      marginTop: 10,
+      color: COLORS.subtitle,
       fontSize: 16,
-      textAlign:
-        "center",
+      lineHeight: 26,
+      textAlign: "center",
     },
 
     card: {
-      flexDirection:
-        "row",
-      alignItems:
-        "center",
+      flexDirection: "row",
+      alignItems: "center",
+
       backgroundColor:
         COLORS.white,
-      borderRadius: 18,
-      padding: 15,
-      marginBottom: 14,
 
-      shadowColor:
-        "#000",
-      shadowOpacity:
-        0.05,
-      shadowRadius: 5,
+      borderRadius: 22,
+
+      borderWidth: 1.5,
+
+      borderColor:
+        COLORS.goldBorder,
+
+      padding: 16,
+
+      marginBottom: 16,
+
+      shadowColor: "#000",
+
+      shadowOpacity: 0.08,
+
+      shadowRadius: 8,
+
       shadowOffset: {
         width: 0,
-        height: 2,
+        height: 3,
       },
 
-      elevation: 2,
+      elevation: 4,
     },
 
     avatar: {
-      width: 62,
-      height: 62,
-      borderRadius: 31,
+      width: 64,
+      height: 64,
+
+      borderRadius: 32,
+
+      borderWidth: 3,
+
+      borderColor:
+        COLORS.primary,
     },
 
     onlineDot: {
-      position:
-        "absolute",
+      position: "absolute",
       right: 2,
       bottom: 2,
 
@@ -313,41 +309,35 @@ const styles =
         "#3DDC84",
 
       borderWidth: 2,
-      borderColor:
-        "#FFF",
+      borderColor: "#FFF",
     },
 
     middle: {
       flex: 1,
-      marginLeft: 15,
+      marginLeft: 16,
     },
 
     name: {
-      fontSize: 18,
-      fontWeight:
-        "700",
-      color:
-        COLORS.text,
+      fontSize: 19,
+      fontWeight: "700",
+      color: COLORS.text,
     },
 
     lastMessage: {
-      marginTop: 4,
-      color:
-        COLORS.subtitle,
-      fontSize: 14,
+      marginTop: 5,
+      color: COLORS.subtitle,
+      fontSize: 15,
     },
 
     right: {
-      alignItems:
-        "flex-end",
+      alignItems: "flex-end",
       justifyContent:
         "space-between",
-      height: 45,
+      height: 46,
     },
 
     time: {
       fontSize: 12,
-      color:
-        COLORS.subtitle,
+      color: COLORS.subtitle,
     },
   });

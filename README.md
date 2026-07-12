@@ -1,130 +1,49 @@
+<div align="center">
+
+<img src="assets/logo/logo.png" width="140" alt="SecondChance AI Logo"/>
+
 # ❤️ SecondChance AI
 
-> **Because Everyone Deserves a Second Chance.**
+### *Because Everyone Deserves A Second Chance.*
 
-An AI-powered relationship platform helping people confidently start a new chapter through intelligent matching, trusted safety features, and personalized AI guidance.
+<p align="center">
+An AI-powered relationship recovery platform helping people heal emotionally, rebuild confidence, and form meaningful connections through intelligent matching and personalized AI guidance.
+</p>
 
----
+<img src="assets/banner/github-banner.png" alt="SecondChance AI Banner"/>
 
-# 📱 Overview
+<br>
 
-SecondChance AI is a modern AI-powered relationship platform designed for people looking for meaningful relationships.
+![AMD Hackathon](https://img.shields.io/badge/AMD-AI%20Hackathon-red?style=for-the-badge)
+![React Native](https://img.shields.io/badge/React%20Native-0A66C2?style=for-the-badge&logo=react)
+![Expo](https://img.shields.io/badge/Expo-000000?style=for-the-badge&logo=expo)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 
-Unlike traditional dating apps that rely only on swipes, SecondChance AI uses AI to understand personalities, values, goals, interests, communication styles, and relationship expectations to recommend compatible matches.
+![Platform](https://img.shields.io/badge/Platform-Android-blue?style=for-the-badge)
+![AI Powered](https://img.shields.io/badge/AI-Powered-gold?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Hackathon%20Project-success?style=for-the-badge)
 
----
-
-# ✨ Features
-
-- 🔐 Secure Firebase Authentication
-- 👤 Complete Profile Onboarding
-- ❤️ AI Compatibility Matching
-- 🧬 Relationship DNA Analysis
-- 🤖 AI Personality Insights
-- 💬 Real-time Chat *(Coming Soon)*
-- 🛡 TrustGuard AI *(Coming Soon)*
-- 🚩 AI Red Flag Detection *(Coming Soon)*
-- 💡 AI Ice Breakers *(Coming Soon)*
+</div>
 
 ---
 
-# 🧠 AI Features
+# 🌍 About SecondChance AI
 
-SecondChance AI evaluates compatibility using:
+SecondChance AI is an AI-powered relationship recovery and intelligent matchmaking platform designed to help people confidently begin a new chapter in life.
 
-- Interests
-- Lifestyle
-- Core Values
-- Life Goals
-- Personality Questions
-- Communication Style
+Unlike traditional dating applications, SecondChance AI focuses on emotional healing, meaningful compatibility, and AI-guided conversations before connecting people with potential matches.
 
-The AI combines these into a compatibility score and generates personalized relationship insights.
+Whether someone is divorced, widowed, separated, or simply looking for a meaningful relationship, SecondChance AI provides a safe and intelligent environment where everyone gets another opportunity to find happiness.
 
 ---
 
-# 🛠 Tech Stack
+## ✨ Vision
 
-## Mobile
-
-- React Native
-- Expo
-- TypeScript
-
-## Backend
-
-- Firebase Authentication
-- Cloud Firestore
-
-## AI
-
-- AMD AI Stack *(Hackathon Target)*
-- Large Language Models
-- AI Compatibility Engine
+To build the world's most trusted AI-powered relationship recovery platform that combines emotional wellness, intelligent matchmaking, and meaningful human connections.
 
 ---
 
-# 📂 Project Structure
+## 🎯 Mission
 
-```
-src
-│
-├── components
-├── screens
-├── services
-├── firebase
-├── navigation
-├── data
-├── theme
-└── types
-```
-
----
-
-# 🚀 Installation
-
-```bash
-npm install
-
-npx expo start
-```
-
----
-
-# 🗺 Roadmap
-
-## ✅ Completed
-
-- Authentication
-- Onboarding
-- Discover Feed
-- AI Compatibility UI
-- Firebase Integration
-
-## 🚧 In Progress
-
-- Like System
-- Match Engine
-- Chat
-
-## 🔜 Planned
-
-- TrustGuard AI
-- AI Conversation Coach
-- AI Ice Breakers
-- Red Flag Detection
-- Voice AI
-
----
-
-# 🏆 AMD AI Hackathon
-
-This project is being built for the AMD AI Hackathon.
-
-Our goal is to create one of the most advanced AI-powered relationship platforms using intelligent compatibility matching and AI-assisted relationship guidance.
-
----
-
-# 📄 License
-
-MIT License
+Empower people to rebuild confidence, heal emotionally, and create genuine relationships through ethical Artificial Intelligence.

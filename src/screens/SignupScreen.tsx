@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
+
 import {
   Alert,
   SafeAreaView,
@@ -15,8 +16,8 @@ import {
 
 import {
   doc,
-  setDoc,
   serverTimestamp,
+  setDoc,
 } from "firebase/firestore";
 
 import {
@@ -27,6 +28,7 @@ import {
 import Logo from "../components/Logo";
 import ScreenHeader from "../components/ScreenHeader";
 import Input from "../components/Input";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 import { COLORS } from "../theme/colors";
 
@@ -42,8 +44,23 @@ export default function SignupScreen({
   const [password, setPassword] =
     useState("");
 
-  const [confirmPassword, setConfirmPassword] =
-    useState("");
+  const [
+    confirmPassword,
+    setConfirmPassword,
+  ] = useState("");
+
+  const [
+    acceptedTerms,
+    setAcceptedTerms,
+  ] = useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [
+    welcomeMode,
+    setWelcomeMode,
+  ] = useState(false);
 
   const handleSignup = async () => {
     if (
@@ -74,6 +91,16 @@ export default function SignupScreen({
       );
       return;
     }
+
+    if (!acceptedTerms) {
+      Alert.alert(
+        "Terms Required",
+        "Please accept the Terms & Conditions and Privacy Policy."
+      );
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const credential =
@@ -115,6 +142,8 @@ export default function SignupScreen({
 
           gender: "",
 
+          interestedIn: "",
+
           city: "",
 
           occupation: "",
@@ -139,20 +168,19 @@ export default function SignupScreen({
         }
       );
 
-      Alert.alert(
-        "Welcome 🎉",
-        "Let's build your profile.",
-        [
-          {
-            text: "Continue",
-            onPress: () =>
-              navigation.replace(
-                "UserType"
-              ),
-          },
-        ]
-      );
+      setWelcomeMode(true);
+
+      setTimeout(() => {
+        setLoading(false);
+
+        navigation.replace(
+          "UserType"
+        );
+      }, 1800);
     } catch (error: any) {
+      setLoading(false);
+      setWelcomeMode(false);
+
       console.log(error);
 
       Alert.alert(
@@ -161,11 +189,8 @@ export default function SignupScreen({
       );
     }
   };
-
-  return (
-    <SafeAreaView
-      style={styles.container}
-    >
+    return (
+    <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
       <Logo />
@@ -178,9 +203,7 @@ export default function SignupScreen({
       <Input
         placeholder="Full Name"
         value={fullName}
-        onChangeText={
-          setFullName
-        }
+        onChangeText={setFullName}
       />
 
       <Input
@@ -193,77 +216,178 @@ export default function SignupScreen({
         placeholder="Password"
         secureTextEntry
         value={password}
-        onChangeText={
-          setPassword
-        }
+        onChangeText={setPassword}
       />
 
       <Input
         placeholder="Confirm Password"
         secureTextEntry
         value={confirmPassword}
-        onChangeText={
-          setConfirmPassword
-        }
+        onChangeText={setConfirmPassword}
       />
 
       <TouchableOpacity
-        style={styles.button}
+        style={[
+          styles.button,
+          loading && styles.buttonDisabled,
+        ]}
         onPress={handleSignup}
+        disabled={loading}
       >
-        <Text
-          style={styles.buttonText}
-        >
+        <Text style={styles.buttonText}>
           Create Account
         </Text>
       </TouchableOpacity>
 
+      {/* Terms & Privacy */}
+
       <TouchableOpacity
+        style={styles.termsContainer}
         onPress={() =>
-          navigation.navigate(
-            "Login"
-          )
+          setAcceptedTerms(!acceptedTerms)
+        }
+        activeOpacity={0.8}
+      >
+        <Text style={styles.checkbox}>
+          {acceptedTerms ? "☑" : "☐"}
+        </Text>
+
+        <Text style={styles.termsText}>
+          I agree to the{" "}
+          <Text
+            style={styles.link}
+            onPress={() =>
+              navigation.navigate("Terms")
+            }
+          >
+            Terms & Conditions
+          </Text>{" "}
+          and{" "}
+          <Text
+            style={styles.link}
+            onPress={() =>
+              navigation.navigate("Privacy")
+            }
+          >
+            Privacy Policy
+          </Text>
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        disabled={loading}
+        onPress={() =>
+          navigation.navigate("Login")
         }
       >
         <Text style={styles.login}>
-          Already have an account?
-          Login
+          Already have an account?{" "}
+          <Text style={styles.loginBold}>
+            Login
+          </Text>
         </Text>
       </TouchableOpacity>
+
+      <LoadingOverlay
+        visible={loading}
+        icon={
+          welcomeMode
+            ? "heart"
+            : "shield-checkmark"
+        }
+        title={
+          welcomeMode
+            ? "Welcome to SecondChance AI"
+            : "Creating your account..."
+        }
+        messages={
+          welcomeMode
+            ? [
+                "Building your personalized AI experience...",
+                "Preparing your onboarding...",
+                "Because Everyone Deserves A Second Chance.",
+              ]
+            : [
+                "Encrypting your information...",
+                "Saving your profile...",
+                "Preparing your AI experience...",
+                "Almost there...",
+              ]
+        }
+      />
     </SafeAreaView>
   );
 }
 
-const styles =
-  StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor:
-        COLORS.background,
-      padding: 24,
-      justifyContent:
-        "center",
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    padding: 24,
+    justifyContent: "center",
+  },
+
+  button: {
+    marginTop: 20,
+    backgroundColor: COLORS.primary,
+    paddingVertical: 16,
+    borderRadius: 30,
+    alignItems: "center",
+
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: 5,
     },
 
-    button: {
-      marginTop: 20,
-      backgroundColor:
-        COLORS.primary,
-      paddingVertical: 16,
-      borderRadius: 30,
-      alignItems: "center",
-    },
+    elevation: 6,
+  },
 
-    buttonText: {
-      color: COLORS.white,
-      fontSize: 18,
-      fontWeight: "700",
-    },
+  buttonDisabled: {
+    opacity: 0.7,
+  },
 
-    login: {
-      marginTop: 25,
-      textAlign: "center",
-      color: COLORS.subtitle,
-      fontSize: 16,
-    },
-  });
+  buttonText: {
+    color: COLORS.white,
+    fontSize: 18,
+    fontWeight: "700",
+  },
+
+  termsContainer: {
+    marginTop: 20,
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+
+  checkbox: {
+    fontSize: 22,
+    color: COLORS.primary,
+    marginRight: 10,
+  },
+
+  termsText: {
+    flex: 1,
+    color: COLORS.subtitle,
+    fontSize: 14,
+    lineHeight: 22,
+  },
+
+  link: {
+    color: COLORS.primary,
+    fontWeight: "700",
+  },
+
+  login: {
+    marginTop: 25,
+    textAlign: "center",
+    color: COLORS.subtitle,
+    fontSize: 16,
+  },
+
+  loginBold: {
+    color: COLORS.primary,
+    fontWeight: "700",
+  },
+});

@@ -20,6 +20,7 @@ import { auth, db } from "../../firebase/config";
 
 import Input from "../../components/Input";
 import ProgressHeader from "../../components/ProgressHeader";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 import { COLORS } from "../../theme/colors";
 
@@ -29,9 +30,13 @@ export default function ProfileBasicScreen({
   const [fullName, setFullName] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
+  const [interestedIn, setInterestedIn] =
+  useState("");
   const [city, setCity] = useState("");
   const [occupation, setOccupation] = useState("");
   const [bio, setBio] = useState("");
+  const [loading, setLoading] =
+  useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -53,6 +58,9 @@ export default function ProfileBasicScreen({
         setFullName(data.fullName || "");
         setAge(data.age || "");
         setGender(data.gender || "");
+        setInterestedIn(
+        data.interestedIn || ""
+        );
         setCity(data.city || "");
         setOccupation(data.occupation || "");
         setBio(data.bio || "");
@@ -67,6 +75,7 @@ export default function ProfileBasicScreen({
       !fullName ||
       !age ||
       !gender ||
+!interestedIn ||
       !city ||
       !occupation ||
       !bio
@@ -77,7 +86,7 @@ export default function ProfileBasicScreen({
       );
       return;
     }
-
+      setLoading(true);
     try {
       const uid = auth.currentUser?.uid;
 
@@ -89,15 +98,21 @@ export default function ProfileBasicScreen({
           fullName,
           age,
           gender,
+          interestedIn,
           city,
           occupation,
           bio,
         }
       );
 
-      navigation.replace(
-        "ProfileInterests"
-      );
+      setTimeout(() => {
+  setLoading(false);
+
+  navigation.replace(
+    "ProfileInterests"
+  );
+}, 1200);
+
     } catch (error) {
       console.log(error);
 
@@ -117,6 +132,7 @@ export default function ProfileBasicScreen({
         contentContainerStyle={styles.content}
       >
         <ProgressHeader
+          backScreen="UserType"
           step={1}
           totalSteps={5}
           title="Complete Your Profile"
@@ -196,6 +212,76 @@ export default function ProfileBasicScreen({
             </Text>
           </TouchableOpacity>
         </View>
+        <Text style={styles.sectionTitle}>
+  Interested In
+</Text>
+
+<View style={styles.genderContainer}>
+
+  <TouchableOpacity
+    style={[
+      styles.genderCard,
+      interestedIn === "Men" &&
+        styles.genderSelected,
+    ]}
+    onPress={() =>
+      setInterestedIn("Men")
+    }
+  >
+    <Text
+      style={[
+        styles.genderText,
+        interestedIn === "Men" &&
+          styles.genderTextSelected,
+      ]}
+    >
+      👨 Men
+    </Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={[
+      styles.genderCard,
+      interestedIn === "Women" &&
+        styles.genderSelected,
+    ]}
+    onPress={() =>
+      setInterestedIn("Women")
+    }
+  >
+    <Text
+      style={[
+        styles.genderText,
+        interestedIn === "Women" &&
+          styles.genderTextSelected,
+      ]}
+    >
+      👩 Women
+    </Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity
+    style={[
+      styles.genderCard,
+      interestedIn === "Everyone" &&
+        styles.genderSelected,
+    ]}
+    onPress={() =>
+      setInterestedIn("Everyone")
+    }
+  >
+    <Text
+      style={[
+        styles.genderText,
+        interestedIn === "Everyone" &&
+          styles.genderTextSelected,
+      ]}
+    >
+      🌍 Everyone
+    </Text>
+  </TouchableOpacity>
+
+</View>
 
         <Input
           placeholder="City"
@@ -225,10 +311,22 @@ export default function ProfileBasicScreen({
           </Text>
         </TouchableOpacity>
 
+        <LoadingOverlay
+  visible={loading}
+  icon="sparkles"
+  title="Saving your profile..."
+  messages={[
+    "Preparing your interests...",
+    "Analyzing your preferences...",
+    "Almost ready...",
+  ]}
+/>
+
       </ScrollView>
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

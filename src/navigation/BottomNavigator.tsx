@@ -3,6 +3,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 import DiscoverScreen from "../screens/DiscoverScreen";
 import MatchesScreen from "../screens/MatchesScreen";
+import AICoachScreen from "../screens/AICoachScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 
 import { COLORS } from "../theme/colors";
@@ -17,12 +18,23 @@ export default function BottomNavigator() {
         headerShown: false,
 
         tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: "#999",
+        tabBarInactiveTintColor: "#9CA3AF",
 
         tabBarStyle: {
-          height: 65,
+          height: 72,
           paddingTop: 8,
           paddingBottom: 8,
+          backgroundColor: COLORS.white,
+          borderTopWidth: 0,
+          elevation: 12,
+
+          shadowColor: "#000",
+          shadowOpacity: 0.08,
+          shadowRadius: 10,
+          shadowOffset: {
+            width: 0,
+            height: -2,
+          },
         },
 
         tabBarLabelStyle: {
@@ -40,6 +52,10 @@ export default function BottomNavigator() {
 
             case "Matches":
               icon = "people";
+              break;
+
+            case "AI Coach":
+              icon = "sparkles";
               break;
 
             case "Profile":
@@ -65,6 +81,11 @@ export default function BottomNavigator() {
       <Tab.Screen
         name="Matches"
         component={MatchesScreen}
+      />
+
+      <Tab.Screen
+        name="AI Coach"
+        component={AICoachScreen}
       />
 
       <Tab.Screen

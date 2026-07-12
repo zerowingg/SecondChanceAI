@@ -24,12 +24,14 @@ import {
 
 import ProgressHeader from "../../components/ProgressHeader";
 import { COLORS } from "../../theme/colors";
+import LoadingOverlay from "../../components/LoadingOverlay";
 
 export default function ProfilePhotoScreen({
   navigation,
 }: any) {
   const [image, setImage] = useState("");
-
+const [loading, setLoading] =
+  useState(false);
   async function pickImage() {
     const permission =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -56,6 +58,7 @@ export default function ProfilePhotoScreen({
   }
 
   async function handleContinue() {
+    setLoading(true);
     try {
       const uid = auth.currentUser?.uid;
 
@@ -72,21 +75,19 @@ export default function ProfilePhotoScreen({
           "https://ui-avatars.com/api/?name=SecondChance&background=C8A96A&color=ffffff",
       });
 
-      Alert.alert(
-        "Profile Completed 🎉",
-        "Welcome to SecondChance AI!",
-        [
-          {
-            text: "Continue",
-            onPress: () => {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "Main" }],
-              });
-            },
-          },
-        ]
-      );
+      setTimeout(() => {
+  setLoading(false);
+
+  navigation.reset({
+    index: 0,
+    routes: [
+      {
+        name: "Main",
+      },
+    ],
+  });
+}, 2200);
+
     } catch (error) {
       console.log("PHOTO ERROR:", error);
 
@@ -106,6 +107,7 @@ export default function ProfilePhotoScreen({
         showsVerticalScrollIndicator={false}
       >
         <ProgressHeader
+          backScreen="ProfileAIQuestions"
           step={7}
           totalSteps={7}
           title="Add Profile Photo"
@@ -137,6 +139,18 @@ export default function ProfilePhotoScreen({
             Finish Profile
           </Text>
         </TouchableOpacity>
+
+        <LoadingOverlay
+  visible={loading}
+  icon="heart"
+  title="Welcome to SecondChance AI"
+  messages={[
+    "Building your personalized AI experience...",
+    "Preparing your Discover feed...",
+    "You're all set!",
+    "Because Everyone Deserves A Second Chance.",
+  ]}
+/>
       </ScrollView>
     </SafeAreaView>
   );

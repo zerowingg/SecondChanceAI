@@ -6,6 +6,12 @@ import WelcomeScreen from "../screens/WelcomeScreen";
 import LoginScreen from "../screens/LoginScreen";
 import SignupScreen from "../screens/SignupScreen";
 
+import AboutScreen from "../screens/AboutScreen";
+import PrivacyScreen from "../screens/PrivacyScreen";
+import TermsScreen from "../screens/TermsScreen";
+import EditProfileScreen from "../screens/EditProfileScreen";
+import ContactSupportScreen from "../screens/ContactSupportScreen";
+
 import UserTypeScreen from "../screens/onboarding/UserTypeScreen";
 import ProfileBasicScreen from "../screens/onboarding/ProfileBasicScreen";
 import ProfileInterestsScreen from "../screens/onboarding/ProfileInterestsScreen";
@@ -18,6 +24,8 @@ import ProfilePhotoScreen from "../screens/onboarding/ProfilePhotoScreen";
 import ChatScreen from "../screens/ChatScreen";
 
 import BottomNavigator from "./BottomNavigator";
+
+import { COLORS } from "../theme/colors";
 
 const Stack = createNativeStackNavigator();
 
@@ -105,6 +113,75 @@ export default function AppNavigator() {
           name="Chat"
           component={ChatScreen}
         />
+
+        {/* About */}
+        <Stack.Screen
+          name="About"
+          component={AboutScreen}
+          options={{
+            headerShown: true,
+            title: "About SecondChance AI",
+            headerTintColor: COLORS.primary,
+            headerShadowVisible: false,
+            headerTitleStyle: {
+              fontWeight: "700",
+            },
+          }}
+        />
+
+        {/* Privacy */}
+        <Stack.Screen
+          name="Privacy"
+          component={PrivacyScreen}
+          options={{
+            headerShown: true,
+            title: "Privacy Policy",
+            headerTintColor: COLORS.primary,
+            headerShadowVisible: false,
+            headerTitleStyle: {
+              fontWeight: "700",
+            },
+          }}
+        />
+        <Stack.Screen
+  name="Terms"
+  component={TermsScreen}
+  options={{
+    headerShown: true,
+    title: "Terms & Conditions",
+    headerTintColor: COLORS.primary,
+    headerShadowVisible: false,
+    headerTitleStyle: {
+      fontWeight: "700",
+    },
+  }}
+/>
+<Stack.Screen
+  name="EditProfile"
+  component={EditProfileScreen}
+  options={{
+    headerShown: true,
+    title: "Edit Profile",
+    headerTintColor: COLORS.primary,
+    headerShadowVisible: false,
+    headerTitleStyle: {
+      fontWeight: "700",
+    },
+  }}
+/>
+<Stack.Screen
+  name="ContactSupport"
+  component={ContactSupportScreen}
+  options={{
+    headerShown: true,
+    title: "Contact & Support",
+    headerTintColor: COLORS.primary,
+    headerShadowVisible: false,
+    headerTitleStyle: {
+      fontWeight: "700",
+    },
+  }}
+/>
       </Stack.Navigator>
     </NavigationContainer>
   );

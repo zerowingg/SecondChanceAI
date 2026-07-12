@@ -1,3 +1,4 @@
+import { GLOBAL } from "../../theme/styles";
 import React from "react";
 import {
   Image,
@@ -64,16 +65,21 @@ export default function ProfileCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 28,
-    overflow: "hidden",
-    elevation: 5,
-  },
+  ...GLOBAL.premiumCard,
+
+  overflow: "hidden",
+
+  marginBottom: 10,
+},
 
   image: {
-    width: "100%",
-    height: 340,
-  },
+  width: "100%",
+  height: 340,
+
+  borderBottomWidth: 1,
+
+  borderBottomColor: COLORS.premiumBorder,
+},
 
   content: {
     padding: 20,

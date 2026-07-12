@@ -78,7 +78,8 @@ export default function ProfileLifestyleScreen({
         personality,
         smoking,
         drinking,
-        children,
+          children,
+          languages,
       });
 
       navigation.replace("ProfileValues");
@@ -136,6 +137,7 @@ export default function ProfileLifestyleScreen({
         contentContainerStyle={styles.content}
       >
         <ProgressHeader
+        backScreen="ProfileGoals"
           step={4}
           totalSteps={7}
           title="Lifestyle"
