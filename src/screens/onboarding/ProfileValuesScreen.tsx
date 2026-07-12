@@ -109,6 +109,7 @@ export default function ProfileValuesScreen({
         showsVerticalScrollIndicator={false}
       >
         <ProgressHeader
+          backScreen="ProfileLifestyle"
           step={5}
           totalSteps={7}
           title="Your Core Values"

@@ -1,3 +1,4 @@
+import { GLOBAL } from "../../theme/styles";
 import React from "react";
 import {
   Image,
@@ -5,6 +6,8 @@ import {
   Text,
   View,
 } from "react-native";
+
+import { getProfileImage } from "../../utils/avatar";
 
 import { COLORS } from "../../theme/colors";
 
@@ -33,13 +36,9 @@ export default function ProfileCard({
   return (
     <View style={styles.card}>
       <Image
-        source={{
-          uri:
-            profile.photoURL ||
-            "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800",
-        }}
-        style={styles.image}
-      />
+  source={getProfileImage(profile)}
+  style={styles.image}
+/>
 
       <View style={styles.content}>
         <Text style={styles.name}>
@@ -66,16 +65,21 @@ export default function ProfileCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: COLORS.white,
-    borderRadius: 28,
-    overflow: "hidden",
-    elevation: 5,
-  },
+  ...GLOBAL.premiumCard,
+
+  overflow: "hidden",
+
+  marginBottom: 10,
+},
 
   image: {
-    width: "100%",
-    height: 340,
-  },
+  width: "100%",
+  height: 340,
+
+  borderBottomWidth: 1,
+
+  borderBottomColor: COLORS.premiumBorder,
+},
 
   content: {
     padding: 20,

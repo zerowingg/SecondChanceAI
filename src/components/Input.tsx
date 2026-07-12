@@ -1,3 +1,4 @@
+import { GLOBAL } from "../theme/styles";
 import React from "react";
 import {
   TextInput,

@@ -12,7 +12,10 @@ function compareArrays(
     second.includes(item)
   );
 
-  return matches.length / Math.max(first.length, second.length);
+  return (
+    matches.length /
+    Math.max(first.length, second.length)
+  );
 }
 
 function compareText(
@@ -46,9 +49,9 @@ export function calculateMatchScore(
   );
 
   const lifestyle = compareArrays(
-    currentUser.lifestyle,
-    otherUser.lifestyle
-  );
+  Object.values(currentUser.lifestyle),
+  Object.values(otherUser.lifestyle)
+);
 
   const languages = compareArrays(
     currentUser.languages,

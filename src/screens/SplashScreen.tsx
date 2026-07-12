@@ -3,24 +3,48 @@ import { SafeAreaView, StyleSheet, Text } from "react-native";
 import { useEffect } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 import Logo from "../components/Logo";
 import { COLORS } from "../theme/colors";
 import { STRINGS } from "../constants/strings";
-import { auth } from "../firebase/config";
+import { auth, db } from "../firebase/config";
 
 export default function SplashScreen() {
   const navigation = useNavigation<any>();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setTimeout(() => {
-        if (user) {
-          navigation.replace("Discover");
-        } else {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setTimeout(async () => {
+        if (!user) {
+          navigation.replace("Welcome");
+          return;
+        }
+
+        try {
+          const snapshot = await getDoc(
+            doc(db, "users", user.uid)
+          );
+
+          if (!snapshot.exists()) {
+            navigation.replace("UserType");
+            return;
+          }
+
+          const data = snapshot.data();
+
+          console.log("PROFILE:", data);
+
+          if (data.profileCompleted) {
+            navigation.replace("Main");
+          } else {
+            navigation.replace("UserType");
+          }
+        } catch (error) {
+          console.log(error);
           navigation.replace("Welcome");
         }
-      }, 2000);
+      }, 1500);
     });
 
     return unsubscribe;

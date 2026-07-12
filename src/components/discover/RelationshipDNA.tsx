@@ -16,7 +16,10 @@ export default function RelationshipDNA({
 }: Props) {
   const values = calculate(profile.values?.length, 5);
   const goals = calculate(profile.goals?.length, 5);
-  const lifestyle = calculate(profile.lifestyle?.length, 5);
+  const lifestyle = calculate(
+  Object.values(profile.lifestyle).length,
+  4
+);
   const communication = calculate(profile.languages?.length, 4);
 
   return (

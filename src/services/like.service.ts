@@ -1,7 +1,8 @@
 import {
   doc,
- getDoc,
- setDoc,
+  getDoc,
+  setDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import { auth, db } from "../firebase/config";
@@ -11,40 +12,31 @@ export async function likeUser(targetUserId: string) {
 
   if (!currentUserId) return false;
 
-  // Store current user's like
+  // Save like
   await setDoc(
-    doc(
-      db,
-      "likes",
-      `${currentUserId}_${targetUserId}`
-    ),
+    doc(db, "likes", `${currentUserId}_${targetUserId}`),
     {
       from: currentUserId,
       to: targetUserId,
-      createdAt: Date.now(),
+      createdAt: serverTimestamp(),
     }
   );
 
   // Check reverse like
   const reverseLike = await getDoc(
-    doc(
-      db,
-      "likes",
-      `${targetUserId}_${currentUserId}`
-    )
+    doc(db, "likes", `${targetUserId}_${currentUserId}`)
   );
 
-  // If reverse like exists -> it's a match
   if (reverseLike.exists()) {
+    const matchId = [currentUserId, targetUserId]
+      .sort()
+      .join("_");
+
     await setDoc(
-      doc(
-        db,
-        "matches",
-        `${currentUserId}_${targetUserId}`
-      ),
+      doc(db, "matches", matchId),
       {
         users: [currentUserId, targetUserId],
-        createdAt: Date.now(),
+        createdAt: serverTimestamp(),
       }
     );
 

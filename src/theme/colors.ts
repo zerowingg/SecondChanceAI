@@ -3,6 +3,9 @@ export const COLORS = {
   primary: "#D4AF37",
   primaryDark: "#B68D2A",
 
+  // Luxury Borders
+  goldBorder: "#E7D39A",
+
   // Backgrounds
   background: "#FAF8F5",
   surface: "#FFFFFF",

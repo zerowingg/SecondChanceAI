@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
+
 import {
   Alert,
   SafeAreaView,
@@ -8,30 +9,78 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
 
-import { auth, db } from "../firebase/config";
+import {
+  doc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
+
+import {
+  auth,
+  db,
+} from "../firebase/config";
 
 import Logo from "../components/Logo";
 import ScreenHeader from "../components/ScreenHeader";
 import Input from "../components/Input";
+import LoadingOverlay from "../components/LoadingOverlay";
+
 import { COLORS } from "../theme/colors";
 
-export default function SignupScreen({ navigation }: any) {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+export default function SignupScreen({
+  navigation,
+}: any) {
+  const [fullName, setFullName] =
+    useState("");
+
+  const [email, setEmail] =
+    useState("");
+
+  const [password, setPassword] =
+    useState("");
+
+  const [
+    confirmPassword,
+    setConfirmPassword,
+  ] = useState("");
+
+  const [
+    acceptedTerms,
+    setAcceptedTerms,
+  ] = useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [
+    welcomeMode,
+    setWelcomeMode,
+  ] = useState(false);
 
   const handleSignup = async () => {
-    if (!fullName || !email || !password || !confirmPassword) {
-      Alert.alert("Missing Information", "Please fill all fields.");
+    if (
+      !fullName.trim() ||
+      !email.trim() ||
+      !password.trim() ||
+      !confirmPassword.trim()
+    ) {
+      Alert.alert(
+        "Missing Information",
+        "Please fill all fields."
+      );
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert("Password Mismatch", "Passwords do not match.");
+      Alert.alert(
+        "Password Mismatch",
+        "Passwords do not match."
+      );
       return;
     }
 
@@ -43,53 +92,104 @@ export default function SignupScreen({ navigation }: any) {
       return;
     }
 
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email.trim(),
-        password
-      );
-
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        uid: userCredential.user.uid,
-        fullName: fullName,
-        email: email.trim(),
-        createdAt: serverTimestamp(),
-        userType: "",
-        profileCompleted: false,
-      });
-
-      console.log("=================================");
-      console.log("SUCCESS");
-      console.log(userCredential.user);
-      console.log("=================================");
-
+    if (!acceptedTerms) {
       Alert.alert(
-        "Success 🎉",
-        "Account created successfully!",
-        [
-          {
-            text: "OK",
-            onPress: () => navigation.replace("Discover"),
-          },
-        ]
+        "Terms Required",
+        "Please accept the Terms & Conditions and Privacy Policy."
       );
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const credential =
+        await createUserWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
+
+      await updateProfile(
+        credential.user,
+        {
+          displayName:
+            fullName.trim(),
+        }
+      );
+
+      await setDoc(
+        doc(
+          db,
+          "users",
+          credential.user.uid
+        ),
+        {
+          uid: credential.user.uid,
+
+          email:
+            email.trim(),
+
+          fullName:
+            fullName.trim(),
+
+          createdAt:
+            serverTimestamp(),
+
+          userType: "",
+
+          age: "",
+
+          gender: "",
+
+          interestedIn: "",
+
+          city: "",
+
+          occupation: "",
+
+          bio: "",
+
+          interests: [],
+
+          goals: [],
+
+          lifestyle: [],
+
+          values: [],
+
+          languages: [],
+
+          aiAnswers: [],
+
+          photoURL: "",
+
+          profileCompleted: false,
+        }
+      );
+
+      setWelcomeMode(true);
+
+      setTimeout(() => {
+        setLoading(false);
+
+        navigation.replace(
+          "UserType"
+        );
+      }, 1800);
     } catch (error: any) {
-      console.log("=================================");
-      console.log("FULL FIREBASE ERROR:");
+      setLoading(false);
+      setWelcomeMode(false);
+
       console.log(error);
-      console.log("CODE:", error.code);
-      console.log("MESSAGE:", error.message);
-      console.log("=================================");
 
       Alert.alert(
         "Signup Failed",
-        `${error.code}\n\n${error.message}`
+        error.message
       );
     }
   };
-
-  return (
+    return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
 
@@ -127,21 +227,94 @@ export default function SignupScreen({ navigation }: any) {
       />
 
       <TouchableOpacity
-        style={styles.button}
+        style={[
+          styles.button,
+          loading && styles.buttonDisabled,
+        ]}
         onPress={handleSignup}
+        disabled={loading}
       >
         <Text style={styles.buttonText}>
           Create Account
         </Text>
       </TouchableOpacity>
 
+      {/* Terms & Privacy */}
+
       <TouchableOpacity
-        onPress={() => navigation.navigate("Login")}
+        style={styles.termsContainer}
+        onPress={() =>
+          setAcceptedTerms(!acceptedTerms)
+        }
+        activeOpacity={0.8}
       >
-        <Text style={styles.login}>
-          Already have an account? Login
+        <Text style={styles.checkbox}>
+          {acceptedTerms ? "☑" : "☐"}
+        </Text>
+
+        <Text style={styles.termsText}>
+          I agree to the{" "}
+          <Text
+            style={styles.link}
+            onPress={() =>
+              navigation.navigate("Terms")
+            }
+          >
+            Terms & Conditions
+          </Text>{" "}
+          and{" "}
+          <Text
+            style={styles.link}
+            onPress={() =>
+              navigation.navigate("Privacy")
+            }
+          >
+            Privacy Policy
+          </Text>
         </Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        disabled={loading}
+        onPress={() =>
+          navigation.navigate("Login")
+        }
+      >
+        <Text style={styles.login}>
+          Already have an account?{" "}
+          <Text style={styles.loginBold}>
+            Login
+          </Text>
+        </Text>
+      </TouchableOpacity>
+
+      <LoadingOverlay
+        visible={loading}
+        icon={
+          welcomeMode
+            ? "heart"
+            : "shield-checkmark"
+        }
+        title={
+          welcomeMode
+            ? "Welcome to SecondChance AI"
+            : "Creating your account..."
+        }
+        messages={
+          welcomeMode
+            ? [
+                "Building your personalized AI experience...",
+                "Preparing your onboarding...",
+                "Because Everyone Deserves A Second Chance.",
+              ]
+            : [
+                "Encrypting your information...",
+                "Saving your profile...",
+                "Preparing your AI experience...",
+                "Almost there...",
+              ]
+        }
+      />
     </SafeAreaView>
   );
 }
@@ -160,6 +333,20 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: "center",
+
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 10,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+
+    elevation: 6,
+  },
+
+  buttonDisabled: {
+    opacity: 0.7,
   },
 
   buttonText: {
@@ -168,10 +355,39 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
+  termsContainer: {
+    marginTop: 20,
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+
+  checkbox: {
+    fontSize: 22,
+    color: COLORS.primary,
+    marginRight: 10,
+  },
+
+  termsText: {
+    flex: 1,
+    color: COLORS.subtitle,
+    fontSize: 14,
+    lineHeight: 22,
+  },
+
+  link: {
+    color: COLORS.primary,
+    fontWeight: "700",
+  },
+
   login: {
     marginTop: 25,
     textAlign: "center",
     color: COLORS.subtitle,
     fontSize: 16,
+  },
+
+  loginBold: {
+    color: COLORS.primary,
+    fontWeight: "700",
   },
 });

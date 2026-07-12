@@ -1,4 +1,13 @@
-import { View, Text, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
+
 import { COLORS } from "../theme/colors";
 
 type Props = {
@@ -6,6 +15,8 @@ type Props = {
   subtitle: string;
   step: number;
   totalSteps: number;
+
+  backScreen?: string;
 };
 
 export default function ProgressHeader({
@@ -13,11 +24,36 @@ export default function ProgressHeader({
   subtitle,
   step,
   totalSteps,
+  backScreen,
 }: Props) {
-  const progress = (step / totalSteps) * 100;
+  const navigation = useNavigation<any>();
+
+  const progress =
+    (step / totalSteps) * 100;
 
   return (
     <View style={styles.container}>
+
+      {/* Back Button */}
+
+      <TouchableOpacity
+        style={styles.backButton}
+        activeOpacity={0.8}
+        onPress={() => {
+  if (backScreen) {
+    navigation.navigate(backScreen);
+  } else {
+    navigation.goBack();
+  }
+}}
+      >
+        <Ionicons
+          name="arrow-back"
+          size={22}
+          color={COLORS.primary}
+        />
+      </TouchableOpacity>
+
       <Text style={styles.step}>
         Step {step} of {totalSteps}
       </Text>
@@ -40,6 +76,7 @@ export default function ProgressHeader({
       <Text style={styles.subtitle}>
         {subtitle}
       </Text>
+
     </View>
   );
 }
@@ -47,6 +84,33 @@ export default function ProgressHeader({
 const styles = StyleSheet.create({
   container: {
     marginBottom: 35,
+  },
+
+  backButton: {
+    width: 46,
+    height: 46,
+
+    borderRadius: 23,
+
+    backgroundColor: COLORS.white,
+
+    justifyContent: "center",
+    alignItems: "center",
+
+    marginBottom: 18,
+
+    borderWidth: 1,
+    borderColor: COLORS.goldBorder,
+
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+
+    elevation: 3,
   },
 
   step: {

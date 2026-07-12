@@ -106,6 +106,7 @@ export default function ProfileInterestsScreen({
         showsVerticalScrollIndicator={false}
       >
         <ProgressHeader
+          backScreen="ProfileBasic"
           step={2}
           totalSteps={7}
           title="Your Interests"
